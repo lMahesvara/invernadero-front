@@ -25,6 +25,8 @@ export default function Home() {
 
     const facServer: IFachadaServer = new FachadaServer()
     facServer.postSensor(sensor)
+
+    e.currentTarget.reset()
   }
 
   const checkFormValidity = (data: Record<string, string>): boolean => {

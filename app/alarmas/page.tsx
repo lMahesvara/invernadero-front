@@ -1,9 +1,10 @@
 'use client'
 
-import { useRef } from 'react'
 import RadioButton from '../../components/form/RadioButton'
+import { IFachadaServer } from '@/logica/IFachadaServer'
+import { FachadaServer } from '@/logica/FachadaServer'
 
-export default function Alarmas() {
+export default function Alarmas({ sensores }: { sensores: Sensor[] }) {
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -14,12 +15,24 @@ export default function Alarmas() {
       return
     }
 
-    console.log('Form is valid')
+    const { sensor, tipo, limInf, limSup } = data
+
+    const alarma: Alarma = {
+      tipo,
+      limiteInferior: Number(limInf),
+      limiteSuperior: Number(limSup),
+      sensor,
+    }
+
+    const facServer: IFachadaServer = new FachadaServer()
+    facServer.postAlarma(alarma)
+
+    e.currentTarget.reset()
   }
 
   const checkFormValidity = (data: Record<string, string>): boolean => {
     const errors = []
-    const requiredFields = ['sensor', 'modelo', 'identificador']
+    const requiredFields = ['sensor', 'tipo', 'limInf', 'limSup']
     requiredFields.forEach(field => {
       if (!data[field]) {
         console.log(`Field ${field} is required`)
@@ -36,10 +49,14 @@ export default function Alarmas() {
     >
       <div className='bg-[#190F31] text-white px-4 py-6 w-2/3 max-w-[500px]  mx-auto rounded flex flex-col justify-between text-lg'>
         <div className='flex flex-col gap-3 '>
-          <RadioButton id='sensor-a' name='sensor' value='Sensor A' />
-          <RadioButton id='sensor-b' name='sensor' value='Sensor B' />
-          <RadioButton id='sensor-c' name='sensor' value='Sensor C' />
-          <RadioButton id='sensor-d' name='sensor' value='Sensor D' />
+          {sensores?.map(sensor => (
+            <RadioButton
+              key={sensor.id}
+              id={sensor.id || sensor.identificador}
+              name='sensor'
+              value={sensor.identificador}
+            />
+          ))}
         </div>
       </div>
       <div className='w-full'>
@@ -107,4 +124,11 @@ export default function Alarmas() {
       </button>
     </form>
   )
+}
+
+Alarmas.getInitialProps = async () => {
+  const facServer: IFachadaServer = new FachadaServer()
+  const sensores = await facServer.getSensores()
+  console.log(sensores || 'No hay sensores')
+  return { sensores }
 }
