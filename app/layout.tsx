@@ -3,6 +3,7 @@
 import Navbar from '../components/header/Navbar'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { SessionProvider } from 'next-auth/react'
 import { ToastContainer } from 'react-toastify'
@@ -26,6 +27,18 @@ export default function RootLayout({
           <Navbar />
           {children}
         </SessionProvider>
+        <ToastContainer
+          position='top-center'
+          autoClose={1000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='dark'
+        />
       </body>
     </html>
   )
