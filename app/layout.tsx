@@ -26,18 +26,6 @@ export default function RootLayout({
           <Navbar />
           {children}
         </SessionProvider>
-        <ToastContainer
-          position='top-center'
-          autoClose={1000}
-          hideProgressBar
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme='dark'
-        />
       </body>
     </html>
   )
