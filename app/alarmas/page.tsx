@@ -3,8 +3,21 @@
 import RadioButton from '../../components/form/RadioButton'
 import { IFachadaServer } from '@/logica/IFachadaServer'
 import { FachadaServer } from '@/logica/FachadaServer'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
 
-export default function Alarmas({ sensores }: { sensores: Sensor[] }) {
+export default function Alarmas() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/')
+    }
+  }, [status])
+
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -15,24 +28,25 @@ export default function Alarmas({ sensores }: { sensores: Sensor[] }) {
       return
     }
 
-    const { sensor, tipo, limInf, limSup } = data
+    const { tipo, limInf, limSup } = data
 
     const alarma: Alarma = {
       tipo,
       limiteInferior: Number(limInf),
       limiteSuperior: Number(limSup),
-      sensor,
     }
 
-    const facServer: IFachadaServer = new FachadaServer()
-    facServer.postAlarma(alarma)
+    const facServer: IFachadaServer = new FachadaServer(session?.user?.token)
+    facServer.postAlarma(alarma).then(() => {
+      toast.success('Alarma creada con éxito')
+    })
 
     e.currentTarget.reset()
   }
 
   const checkFormValidity = (data: Record<string, string>): boolean => {
     const errors = []
-    const requiredFields = ['sensor', 'tipo', 'limInf', 'limSup']
+    const requiredFields = ['tipo', 'limInf', 'limSup']
     requiredFields.forEach(field => {
       if (!data[field]) {
         console.log(`Field ${field} is required`)
@@ -42,12 +56,15 @@ export default function Alarmas({ sensores }: { sensores: Sensor[] }) {
     return errors.length === 0
   }
 
+  if (status === 'loading' || status === 'unauthenticated')
+    return <div className='text-center text-white'>Loading...</div>
+
   return (
     <form
       className='flex flex-col items-center justify-between gap-6 p-24'
       onSubmit={handleFormSubmit}
     >
-      <div className='bg-[#190F31] text-white px-4 py-6 w-2/3 max-w-[500px]  mx-auto rounded flex flex-col justify-between text-lg'>
+      {/* <div className='bg-[#190F31] text-white px-4 py-6 w-2/3 max-w-[500px]  mx-auto rounded flex flex-col justify-between text-lg'>
         <div className='flex flex-col gap-3 '>
           {sensores?.map(sensor => (
             <RadioButton
@@ -58,14 +75,14 @@ export default function Alarmas({ sensores }: { sensores: Sensor[] }) {
             />
           ))}
         </div>
-      </div>
+      </div> */}
       <div className='w-full'>
         <div className='items-center mx-auto w-min text-sm font-medium  bg-[#190F31]  rounded-lg flex text-white gap-6 '>
           <div className='flex items-center w-full pl-3'>
             <input
               id='temperatura'
               type='radio'
-              value=''
+              value='TEMPERATURA'
               name='tipo'
               className='w-4 h-4 bg-gray-600 border-gray-500 focus:ring-0 ring-offset-gray-700 focus:ring-offset-gray-700'
             />
@@ -80,7 +97,7 @@ export default function Alarmas({ sensores }: { sensores: Sensor[] }) {
             <input
               id='humedad'
               type='radio'
-              value=''
+              value='HUMEDAD'
               name='tipo'
               className='w-4 h-4 bg-gray-600 border-gray-500 focus:ring-0 ring-offset-gray-700 focus:ring-offset-gray-700'
             />
@@ -124,11 +141,4 @@ export default function Alarmas({ sensores }: { sensores: Sensor[] }) {
       </button>
     </form>
   )
-}
-
-Alarmas.getInitialProps = async () => {
-  const facServer: IFachadaServer = new FachadaServer()
-  const sensores = await facServer.getSensores()
-  console.log(sensores || 'No hay sensores')
-  return { sensores }
 }

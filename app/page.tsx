@@ -30,7 +30,10 @@ const page = () => {
                     </span>
                   </div>
                 </button>
-                <button className='h-12 px-6 transition duration-300 border-2 border-gray-300 rounded-full group hover:border-blue-400 '>
+                <button
+                  className='h-12 px-6 transition duration-300 border-2 border-gray-300 rounded-full group hover:border-blue-400 '
+                  onClick={() => signIn('github')}
+                >
                   <div className='relative flex items-center justify-center space-x-4'>
                     <svg
                       xmlns='http://www.w3.org/2000/svg'

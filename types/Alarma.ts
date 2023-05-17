@@ -3,5 +3,4 @@ interface Alarma {
   tipo: string
   limiteInferior: number
   limiteSuperior: number
-  sensor: string
 }

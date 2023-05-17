@@ -2,8 +2,21 @@
 import { IFachadaServer } from '@/logica/IFachadaServer'
 import { FachadaServer } from '@/logica/FachadaServer'
 import RadioButton from '@/components/form/RadioButton'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
 
 export default function Home() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/')
+    }
+  }, [status])
+
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -21,8 +34,10 @@ export default function Home() {
       identificador,
     }
 
-    const facServer: IFachadaServer = new FachadaServer()
-    facServer.postSensor(sensor)
+    const facServer: IFachadaServer = new FachadaServer(session?.user?.token)
+    facServer.postSensor(sensor).then(() => {
+      toast.success('Sensor creado con éxito')
+    })
 
     e.currentTarget.reset()
   }
@@ -38,6 +53,9 @@ export default function Home() {
     })
     return errors.length === 0
   }
+
+  if (status === 'loading' || status === 'unauthenticated')
+    return <div className='text-center text-white'>Loading...</div>
 
   return (
     <main className='flex flex-col items-center justify-between p-24'>

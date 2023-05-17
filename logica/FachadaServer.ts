@@ -1,30 +1,34 @@
 import { IFachadaServer } from './IFachadaServer'
+import axiosInstance from '../utils/axiosConfig'
+import { Toast } from 'react-toastify/dist/components'
 
 export class FachadaServer implements IFachadaServer {
-  API_URL = process.env.API_URL || 'http://localhost:8080'
+  API_URL = process.env.API_URL
+  token: string = ''
+
+  constructor(token: string) {
+    this.token = token
+  }
 
   async postSensor(sensor: Sensor): Promise<void> {
     try {
-      const res = await fetch(`${this.API_URL}/sensores`, {
-        method: 'POST',
+      //agregar headers
+      const res = await axiosInstance.post(`${this.API_URL}/sensores`, sensor, {
         headers: {
           'Content-Type': 'application/json',
+          auth: this.token,
         },
-        body: JSON.stringify(sensor),
       })
-      console.log(res)
-      const data = await res.json()
     } catch (error) {}
   }
 
   async postAlarma(alarma: Alarma): Promise<void> {
     try {
-      const res = await fetch(`${this.API_URL}/alarmas`, {
-        method: 'POST',
+      const res = await axiosInstance.post(`${this.API_URL}/alarmas`, alarma, {
         headers: {
           'Content-Type': 'application/json',
+          auth: this.token,
         },
-        body: JSON.stringify(alarma),
       })
       console.log(res)
     } catch (error) {}
@@ -32,9 +36,14 @@ export class FachadaServer implements IFachadaServer {
 
   async getSensores(): Promise<Sensor[]> {
     try {
-      const res = await fetch(`${this.API_URL}/sensores`)
-      const data = await res.json()
-      return data as Sensor[]
+      const res = await axiosInstance.get(`${this.API_URL}/sensores`, {
+        headers: {
+          'Content-Type': 'application/json',
+          auth: this.token,
+        },
+      })
+
+      return res.data
     } catch (error) {
       return []
     }
