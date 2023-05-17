@@ -1,92 +1,57 @@
 'use client'
 
-import { useRef } from 'react'
-import RadioButton from '../components/form/RadioButton'
-import { IFachadaServer } from '@/logica/IFachadaServer'
-import { FachadaServer } from '@/logica/FachadaServer'
+import { signIn } from 'next-auth/react'
 
-export default function Home() {
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const data = Object.fromEntries(formData) as Record<string, string>
-    console.log(data)
-    if (!checkFormValidity(data)) {
-      console.log('Form is invalid')
-      return
-    }
-
-    const { zona, modelo, identificador } = data
-    const sensor: Sensor = {
-      zona,
-      modelo,
-      identificador,
-    }
-
-    const facServer: IFachadaServer = new FachadaServer()
-    facServer.postSensor(sensor)
-
-    e.currentTarget.reset()
-  }
-
-  const checkFormValidity = (data: Record<string, string>): boolean => {
-    const errors = []
-    const requiredFields = ['zona', 'modelo', 'identificador']
-    requiredFields.forEach(field => {
-      if (!data[field]) {
-        console.log(`Field ${field} is required`)
-        errors.push(field)
-      }
-    })
-    return errors.length === 0
-  }
-
+const page = () => {
   return (
-    <main className='flex flex-col items-center justify-between p-24'>
-      <form
-        className='flex flex-col items-center justify-center gap-12'
-        onSubmit={handleFormSubmit}
-      >
-        <div className='bg-[#190F31] text-white mt-16 px-8 py-8 w-[450px] h-[220px] mx-auto rounded flex flex-col justify-between text-lg'>
-          <div className='grid items-center h-full grid-cols-3 gap-12'>
-            <RadioButton id='Area-a' name='zona' value='Area A' />
-            <RadioButton id='Area-b' name='zona' value='Area B' />
-            <RadioButton id='Area-c' name='zona' value='Area C' />
-            <RadioButton id='Area-d' name='zona' value='Area D' />
-            <RadioButton id='Area-e' name='zona' value='Area E' />
-            <RadioButton id='Area-f' name='zona' value='Area F' />
+    <div className='relative py-16 bg-transparent'>
+      <div className='container relative px-6 m-auto text-white md:px-12 xl:px-40'>
+        <div className='m-auto md:w-8/12 lg:w-6/12 xl:w-6/12'>
+          <div className='bg-[#190F31] shadow-xl rounded-xl'>
+            <div className='p-6 sm:p-16'>
+              <div className='space-y-4'>
+                <h2 className='mb-8 text-3xl font-bold text-white'>
+                  Iniciar Sesión
+                </h2>
+              </div>
+              <div className='grid mt-16 space-y-4'>
+                <button
+                  className='h-12 px-6 transition duration-300 border-2 border-gray-300 rounded-full group hover:border-blue-400 '
+                  onClick={() => signIn('google')}
+                >
+                  <div className='relative flex items-center justify-center space-x-4'>
+                    <img
+                      src='https://tailus.io/sources/blocks/social/preview/images/google.svg'
+                      className='absolute left-0 w-5'
+                      alt='google logo'
+                    />
+                    <span className='block text-sm font-semibold tracking-wide text-white transition duration-300 w-max group-hover:text-blue-600 sm:text-base'>
+                      Continuar con Google
+                    </span>
+                  </div>
+                </button>
+                <button className='h-12 px-6 transition duration-300 border-2 border-gray-300 rounded-full group hover:border-blue-400 '>
+                  <div className='relative flex items-center justify-center space-x-4'>
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='currentColor'
+                      className='absolute left-0 w-5 text-white'
+                      viewBox='0 0 16 16'
+                    >
+                      <path d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z' />
+                    </svg>
+                    <span className='block text-sm font-semibold tracking-wide text-white transition duration-300 w-max group-hover:text-blue-600 sm:text-base'>
+                      Continuar con Github
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div className='bg-[#190F31] text-white px-4 py-2 w-min mx-auto rounded flex flex-col justify-between text-lg gap-4'>
-          <div className='flex items-center justify-center gap-2'>
-            <label htmlFor='identificador' className='text-xl font-semibold'>
-              Identificador:
-            </label>
-            <input
-              type='text'
-              id='identificador'
-              name='identificador'
-              className='bg-[#261F4B] px-4 py-2 rounded-2xl text-center focus:outline-none'
-              placeholder='Identificador'
-            />
-          </div>
-          <div className='flex items-center justify-end gap-2'>
-            <label htmlFor='modelo' className='text-xl font-semibold'>
-              Modelo:
-            </label>
-            <input
-              type='text'
-              id='modelo'
-              name='modelo'
-              className='bg-[#261F4B] px-4 py-2 rounded-2xl text-center focus:outline-none'
-              placeholder='Modelo'
-            />
-          </div>
-        </div>
-        <button className='mx-auto text-white bg-[#3F238C] px-2 py-2 w-28 h-10 rounded'>
-          Guardar
-        </button>
-      </form>
-    </main>
+      </div>
+    </div>
   )
 }
+
+export default page
